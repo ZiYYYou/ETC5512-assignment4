@@ -10,3 +10,209 @@ Chenghuiyu Fan - 36427462
 
 Due Date: 2026-6-12
 
+<!-- ---------------------------------------------------------------------- -->
+
+<!-- Data Details - Task 1 Tab -->
+
+<!-- ---------------------------------------------------------------------- -->
+
+## Data Details
+
+#### Question 1
+
+Victorian public hospitals treat millions of emergency patients each year, yet waiting times vary widely across triage categories and hospital types. Victorian public hospitals treat millions of emergency patients each year, yet waiting times vary widely across triage categories and hospital types. This analysis investigates how emergency department (ED) performance in Victoria changed between 2020–21 and 2024–25, and whether triage urgency category (1–5), hospital peer group, and geographic remoteness explain the variation in waiting time compliance rates across the state.
+
+Specifically, the analysis addresses four sub-questions: 1. How did Victoria's ED compliance rate and median waiting time change over five years (including the COVID disruption and recovery period)? 2. How does Victoria's performance compare with the national average over the same period? 3. Which triage categories and hospital peer groups show the greatest shortfall in on-time performance? 4. Does geographic remoteness explain variation in on-time compliance across the state, and how does this pattern appear geographically?
+
+#### Question 2
+
+Three data files are used in this analysis.
+
+**Data file 1 — AIHW Emergency Department Care 2024–25 data tables** (XLSX). Released 10 December 2025 by the Australian Institute of Health and Welfare. The file contains over 50 worksheets covering all Australian public hospital EDs from 2020–21 to 2024–25. Key variables include state/territory, hospital peer group, triage category, number of presentations, proportion of patients seen on time (%), and median waiting time (minutes). All figures are pre-aggregated at the state and peer group level; no patient-level records are included.
+
+**Data file 2 — Geoscience Australia National HealthDirect Health Facilities** (CSV). Updated March 2025. Lists the spatial location (latitude and longitude) of all Australian public health facilities. The Victoria subset contains 50 emergency department services. Used to plot the geographic distribution of EDs on the choropleth map.
+
+**Data file 3 — ABS Remoteness Area 2021 Shapefile** (ZIP). Part of the Australian Statistical Geography Standard (ASGS) Edition 3, released July 2021. Contains polygon boundaries dividing Australia into five remoteness classes: Major Cities, Inner Regional, Outer Regional, Remote, and Very Remote. The Victoria polygons are joined with AIHW Table S5.2 performance data to produce the choropleth map.
+
+#### Question 3
+
+The three data files must be downloaded manually and saved into the data/ folder before running this document.
+
+Data file 1: **AIHW Emergency Department Care 2024–25 data tables (XLSX)**.
+
+The dataset covers all Australian public hospital EDs. Key variables include state/territory, hospital peer group, triage category, number of ED presentations, proportion of patients seen on time (%), and median waiting time (minutes). The time series runs from 2020–21 to 2024–25, which covers the COVID disruption period and subsequent recovery. The data is publicly available under an open government licence. All figures are pre-aggregated at the state and hospital peer group level, so there are no direct privacy concerns.
+
+Download steps — Data file 1:
+
+Go to https://www.aihw.gov.au/hospitals/latest-updates-and-downloads/data
+
+Under "Filter by sub topic", tick the "Emergency department care" checkbox.
+
+The page will filter to show only emergency department files.
+
+Find the entry titled "Emergency department care 2024–25 data tables" (XLSX, 264 kB, dated 10 Dec 2025).
+
+Click the blue DOWNLOAD button on the right.
+
+Save the file as Emergency-department-care-2024-25.xlsx inside the data/ folder of the project.
+
+Data file 2: **Geoscience Australia National HealthDirect Health Facilities (CSV)**.
+
+The dataset lists the spatial location of all Australian public health facilities. Key variables include facility name, suburb, state, service type, latitude, and longitude. The Victoria subset contains 50 emergency department services. These coordinates are used to plot ED locations on the choropleth map produced from Data file 3.
+
+Download steps — Data file 2:
+
+Go to https://ecat.ga.gov.au/geonetwork/srv/eng/catalog.search#/metadata/149331
+
+Scroll down to the Link section near the bottom of the page.
+
+Find the row labelled "Download Spreadsheet (csv) [3.3 MB]" and click it.
+
+Save the downloaded file as 149331_01_1.csv inside the data/ folder of the project.
+
+Data file 3: **ABS Remoteness Area 2021 – Shapefile (ZIP), part of the Australian Statistical Geography Standard (ASGS) Edition 3**.
+
+The file contains polygon boundaries that divide Australia into five remoteness classes: Major Cities, Inner Regional, Outer Regional, Remote, and Very Remote. The Victoria polygons will be joined with AIHW Table S5.2 performance data to produce a choropleth map showing how ED waiting time compliance varies by remoteness zone.
+
+Download steps — Data file 3:
+
+Go to https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files
+
+Click "Statistics" in the top navigation bar, then "Classifications, standards and methods", then "Standards", then "Australian Statistical Geography Standard (ASGS) Edition 3".
+
+Click "Remoteness Structure" in the left sidebar, then click "Access and downloads", then click "Digital boundary files".
+
+Scroll down to the "Remoteness Structure" section on the right side of the page.
+
+Find the row "Remoteness Area - 2021 - Shapefile" and click "Download ZIP ".
+
+Extract the ZIP file and move all extracted files into the data/ folder of the project.
+
+```{r echo = TRUE, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(readxl)
+library(here)
+library(sf)
+```
+Here I read four sheets from the AIHW Emergency Department Care 2024–25 Excel file. The argument skip = 1 skips the merged header row above the data.
+```{r echo = TRUE, message = FALSE, warning = FALSE}
+t5_1_raw <- read_excel(
+  here("data", "Emergency-department-care-2024-25.xlsx"),
+  sheet = "Table 5.1",
+  skip  = 1 
+)
+
+t5_3_raw <- read_excel(
+  here::here("data", "Emergency-department-care-2024-25.xlsx"),
+  sheet = "Table 5.3",
+  skip  = 1
+)
+
+t6_3_raw <- read_excel(
+  here::here("data", "Emergency-department-care-2024-25.xlsx"),
+  sheet = "Table 6.3",
+  skip  = 1
+)
+
+ts5_2_raw <- read_excel(
+  here::here("data", "Emergency-department-care-2024-25.xlsx"),
+  sheet = "Table S5.2",
+  skip  = 1
+)
+```
+Here I read the Geoscience Australia health facilities CSV and the ABS Remoteness Area 2021 shapefile. These are used together to produce the choropleth map in the blog post.
+```{r echo = TRUE, message = FALSE, warning = FALSE}
+hospital_location <- read_csv(here::here("data", "149331_01_1.csv"))
+
+boundary_data <- st_read(here("data", "RA_2021_AUST_GDA94", "RA_2021_AUST_GDA94.shp"))
+```
+The following code cleans and reshapes the four AIHW data sheets into tidy format ready for plotting.
+Here I clean Table 5.1 to produce a tidy time-series of Victoria's ED performance across five years.
+```{r}
+t5_1_clean <- t5_1_raw |>
+  rename(state = 1, measure = 2) |>
+  filter(state == "Vic") |>
+  pivot_longer(
+    cols = starts_with("20"),
+    names_to = "year",
+    values_to = "value"
+  )
+```
+Here I clean Table 6.3, retaining both Victoria and the national total for comparison.
+```{r}
+t6_3_clean <- t6_3_raw |>
+  rename(admission_status = 1, state = 2) |>
+  filter(state == c("Vic", "Total")) |>
+  pivot_longer(
+    cols = starts_with("20"),
+    names_to = "year",
+    values_to = "value"
+  )
+```
+Here I clean Table 5.3, keeping only the Victoria column and replacing suppressed values with NA.
+```{r}
+t5_3_clean <- t5_3_raw |>
+  rename(peer_group = 1, triage = 2) |>
+  filter(!is.na(triage)) |>
+  select(peer_group, triage, Vic) |>
+  mutate(
+    Vic = if_else(Vic %in% c("n.p.", ". .") , NA, Vic),
+    Vic = as.numeric(Vic) 
+  )
+```
+Here I clean Table S5.2 in the same way, retaining remoteness area and triage category for Victoria.
+```{r}
+ts5_2_clean <- ts5_2_raw |>
+  rename(remoteness = 1, triage = 2) |>
+  filter(!is.na(triage)) |>
+  select(remoteness, triage, Vic) |>
+  mutate(
+    Vic = if_else(Vic %in% c("n.p.", ". ."), NA_character_, Vic),
+    Vic = as.numeric(Vic)
+  )
+```
+Here I filter the health facilities CSV to Victoria's 50 emergency department services, and prepare the ABS shapefile and ED point locations for mapping.
+```{r}
+vic_eds <- hospital_location |>
+  filter(STATE == "VIC", 
+         NHSD_SERVICE_TYPE == "Emergency department service") |>
+  select(ORGANISATION_NAME, SUBURB, LONGITUDE, LATITUDE)
+```
+
+```{r}
+remote_vic <- boundary_data |>
+  filter(STE_NAME21 == "Victoria") |>
+  filter(!RA_NAME21 %in% c(
+    "Migratory - Offshore - Shipping (Vic.)", 
+    "No usual address (Vic.)"
+  ))
+
+vic_eds_sf <- vic_eds |>
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+```
+All three files are stored locally in the data/ folder following the download steps above.
+
+#### References
+
+**Data sources**
+
+Australian Institute of Health and Welfare (AIHW). (2025). Emergency department care 2024–25 data tables [Data set]. https://www.aihw.gov.au/hospitals/latest-updates-and-downloads/data
+
+Geoscience Australia. (2025). National HealthDirect health facilities [Data set]. https://ecat.ga.gov.au/geonetwork/srv/eng/catalog.search#/metadata/149331
+
+Australian Bureau of Statistics (ABS). (2021). Remoteness area 2021 – Shapefile [Data set]. Australian Statistical Geography Standard (ASGS) Edition 3. https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3/jul2021-jun2026/access-and-downloads/digital-boundary-files
+
+**R Packages**
+
+Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686. doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+
+Wickham H, Bryan J (2025). _readxl: Read Excel Files_. doi:10.32614/CRAN.package.readxl <https://doi.org/10.32614/CRAN.package.readxl>, R package version 1.4.5, <https://CRAN.R-project.org/package=readxl>.
+
+Müller K (2025). _here: A Simpler Way to Find Your Files_. doi:10.32614/CRAN.package.here
+  <https://doi.org/10.32614/CRAN.package.here>, R package version 1.0.2,
+  <https://CRAN.R-project.org/package=here>.
+
+Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016
+
+Pebesma, E., 2018. Simple Features for R: Standardized Support for Spatial Vector Data. The R Journal 10 (1), 439-446, https://doi.org/10.32614/RJ-2018-009
+
