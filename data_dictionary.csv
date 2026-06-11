@@ -1,0 +1,24 @@
+dataset,table_or_file,variable,type,description,values_or_units
+AIHW ED Care 2024-25 (xlsx),Table 5.1,state,character,State or territory (first column; renamed from raw header),"NSW, Vic, Qld, WA, SA, Tas, ACT, NT, Total (analysis keeps Vic only)"
+AIHW ED Care 2024-25 (xlsx),Table 5.1,measure,character,ED performance measure being reported (renamed from raw header),"e.g. Proportion seen on time (%), Median waiting time (minutes)"
+AIHW ED Care 2024-25 (xlsx),Table 5.1,year,character,Financial year (reshaped from year columns via pivot_longer),2020-21 to 2024-25
+AIHW ED Care 2024-25 (xlsx),Table 5.1,value,numeric,Value of the measure for that state and year,per cent or minutes depending on measure
+AIHW ED Care 2024-25 (xlsx),Table 6.3,admission_status,character,Patient admission status group (renamed from raw header),"e.g. All presentations to emergency departments, Admitted, Not admitted"
+AIHW ED Care 2024-25 (xlsx),Table 6.3,state,character,State or territory,"analysis keeps Vic and Total (national) for comparison"
+AIHW ED Care 2024-25 (xlsx),Table 6.3,year,character,Financial year (reshaped via pivot_longer),2020-21 to 2024-25
+AIHW ED Care 2024-25 (xlsx),Table 6.3,value,numeric,Value of the measure for that group and year,per cent or minutes depending on measure
+AIHW ED Care 2024-25 (xlsx),Table 5.3,peer_group,character,Hospital peer group classification (renamed from raw header),"e.g. Principal referral, Public acute group A-D, Children's hospitals"
+AIHW ED Care 2024-25 (xlsx),Table 5.3,triage,character,Triage urgency category,"Resuscitation, Emergency, Urgent, Semi-urgent, Non-urgent, Total"
+AIHW ED Care 2024-25 (xlsx),Table 5.3,Vic,numeric,Proportion of Victorian patients seen on time; suppressed values (n.p. / . .) converted to NA,per cent (0-100)
+AIHW ED Care 2024-25 (xlsx),Table S5.2,remoteness,character,Remoteness area of patient residence (renamed from raw header),"Major cities, Inner regional, Outer regional, Remote, Very remote"
+AIHW ED Care 2024-25 (xlsx),Table S5.2,triage,character,Triage urgency category,"Resuscitation, Emergency, Urgent, Semi-urgent, Non-urgent, Total (as in Table 5.3)"
+AIHW ED Care 2024-25 (xlsx),Table S5.2,Vic,numeric,Proportion of Victorian patients seen on time; suppressed values (n.p. / . .) converted to NA,per cent (0-100)
+Geoscience Australia health facilities (csv),149331_01_1.csv,ORGANISATION_NAME,character,Name of the health facility,free text
+Geoscience Australia health facilities (csv),149331_01_1.csv,SUBURB,character,Suburb of the facility,free text
+Geoscience Australia health facilities (csv),149331_01_1.csv,STATE,character,State of the facility; filtered to VIC,"NSW, VIC, QLD, WA, SA, TAS, ACT, NT"
+Geoscience Australia health facilities (csv),149331_01_1.csv,NHSD_SERVICE_TYPE,character,Type of health service; filtered to Emergency department service,"e.g. Emergency department service, Hospital service"
+Geoscience Australia health facilities (csv),149331_01_1.csv,LONGITUDE,numeric,Longitude of the facility (WGS84 / EPSG:4326),decimal degrees
+Geoscience Australia health facilities (csv),149331_01_1.csv,LATITUDE,numeric,Latitude of the facility (WGS84 / EPSG:4326),decimal degrees
+ABS Remoteness Area 2021 shapefile,RA_2021_AUST_GDA94.shp,RA_NAME21,character,Remoteness area class name; Migratory/Offshore and No-usual-address polygons excluded,"Major Cities of Australia, Inner Regional Australia, Outer Regional Australia, Remote Australia, Very Remote Australia (state-suffixed)"
+ABS Remoteness Area 2021 shapefile,RA_2021_AUST_GDA94.shp,STE_NAME21,character,State or territory name; filtered to Victoria,"e.g. Victoria, New South Wales"
+ABS Remoteness Area 2021 shapefile,RA_2021_AUST_GDA94.shp,geometry,polygon,Polygon boundary of each remoteness area (GDA94 / EPSG:4283),spatial geometry

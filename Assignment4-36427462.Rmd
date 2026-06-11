@@ -272,7 +272,7 @@ The data show that Victoria's proportion of patients seen on time dropped to its
 ### Is Victoria keeping up with the rest of the country?
 
 Victoria's performance has improved, but how does it compare to the rest of the country? The chart below compares Victoria's four-hour rule compliance rate with the national average from 2020-21 to 2024-25.
-```{r}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 t6_3_clean |>
   filter(admission_status == "All presentations to emergency departments") |>
   ggplot(aes(x = year, y = value, group = state, colour = state)) +
@@ -315,7 +315,7 @@ Other hospitals consistently show the highest compliance rates across all triage
 
 Hospital type explains some of the variation. But hospital type and geographic remoteness are closely linked. The chart below looks at whether remoteness alone can explain the gap in compliance rates across Victoria.
 
-```{r}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 ts5_2_clean |>
   filter(!triage %in% c("Total", "Resuscitation")) |>
   ggplot(aes(x = triage, y = Vic, fill = remoteness)) +
@@ -335,7 +335,7 @@ Major cities show the highest compliance rate for Semi-urgent presentations. For
 
 The bar chart shows that remoteness is associated with lower compliance rates. The map below puts these differences on the geography of Victoria, with the 50 ED locations shown as points.
 
-```{r}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 remoteness_perf <- ts5_2_clean |>
   filter(triage == "Total") |>
   select(remoteness, Vic)
@@ -351,7 +351,7 @@ ra_vic_join <- remote_vic |>
   left_join(remoteness_perf, by = "remoteness")
 ```
 
-```{r}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 ggplot() +
   geom_sf(data = ra_vic_join, aes(fill = Vic)) +
   geom_sf(data = vic_eds_sf, size = 1) +
