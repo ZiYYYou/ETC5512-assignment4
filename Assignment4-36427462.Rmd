@@ -225,21 +225,21 @@ Pebesma, E., 2018. Simple Features for R: Standardized Support for Spatial Vecto
 
 ## Blog post
 
- What is this analysis about?
+### What is this analysis about?
 
 Victorian public hospitals treat millions of emergency patients every year. Waiting times vary widely across the state. Australia measures emergency department (ED) performance by tracking the proportion of patients seen on time for each triage category. Category 1 patients are the most critical and should be seen immediately. Category 5 patients are the least urgent and should be seen within two hours.
 
-Why analyse Victoria's ED performance?
+### Why analyse Victoria's ED performance?
 
 I live in Melbourne and use public hospitals. I want to know whether waiting times in Victoria have recovered since the COVID-19 pandemic. I also want to understand whether hospital type and geographic 
 
 location explain why some patients wait longer than others.
 
- Where can we get the data?
+### Where can we get the data?
 
 The data comes from the AIHW Emergency Department Care 2024–25 data tables. The dataset covers all Australian public hospital EDs from 2020–21 to 2024–25. The table below shows Victoria's overall ED performance across the five years.
 
- How has Victoria's ED performance changed over time?
+### How has Victoria's ED performance changed over time?
 
 The first question is how Victoria's ED performance has changed over the five-year period. The two charts below show the proportion of patients seen on time and the median waiting time from 2020-21 to 2024-25.
 
@@ -249,6 +249,11 @@ t5_1_clean |>
   ggplot(aes(x = year, y = value, group = 1)) +
   geom_line() +
   geom_point() +
+  labs(
+    title = "Victoria ED proportion seen on time, 2020-21 to 2024-25",
+    x = "Year",
+    y = "Proportion seen on time (%)"
+  ) +
   theme_bw()
 
 t5_1_clean |>
@@ -256,12 +261,17 @@ t5_1_clean |>
   ggplot(aes(x = year, y = value, group = 1)) +
   geom_line() +
   geom_point() +
+  labs(
+    title = "Victoria ED median waiting time, 2020-21 to 2024-25",
+    x = "Year",
+    y = "Median waiting time (minutes)"
+  ) +
   theme_bw()
 ```
 The data show that Victoria's proportion of patients seen on time dropped to its lowest point in 2021-22 and has since recovered steadily. Median waiting time followed the opposite pattern. It peaked in 2021-22 and has fallen each year since. Both trends suggest the system was under significant pressure during the COVID period and has improved in recent years.
 
 
-Is Victoria keeping up with the rest of the country?
+### Is Victoria keeping up with the rest of the country?
 
 Victoria's performance has improved, but how does it compare to the rest of the country? The chart below compares Victoria's four-hour rule compliance rate with the national average from 2020-21 to 2024-25.
 ```{r}
@@ -270,11 +280,17 @@ t6_3_clean |>
   ggplot(aes(x = year, y = value, group = state, colour = state)) +
   geom_line() +
   geom_point() +
+  labs(
+    title = "Victoria vs national average: proportion seen within 4 hours, 2020-21 to 2024-25",
+    x = "Year",
+    y = "Proportion seen within 4 hours (%)",
+    colour = "State"
+  ) +
   theme_bw()
 ```
 Victoria performs below the national average in every year. Both lines follow a similar downward trend. Victoria dropped sharply from 2020-21 to 2022-23, recovered slightly in 2023-24, then fell again in 2024-25. The national average followed the same pattern but stayed consistently higher. The gap between Victoria and the national average has narrowed slightly over time but has not closed.
 
- Which hospitals are struggling the most?
+### Which hospitals are struggling the most?
 
 Victoria performs below the national average. The next question is where inside Victoria the shortfall is coming from. The chart below breaks down compliance rates by hospital type and triage category for 2024-25.
 
@@ -283,6 +299,12 @@ t5_3_clean |>
   filter(!triage %in% c("Total", "Resuscitation")) |>
   ggplot(aes(x = triage, y = Vic, fill = peer_group)) +
   geom_col(position = "dodge") +
+  labs(
+    title = "Victoria ED compliance by hospital type and triage category, 2024-25",
+    x = "Triage category",
+    y = "Proportion seen on time (%)",
+    fill = "Hospital type"
+  ) +
   theme_bw() +
   theme(
     legend.position = "right",
@@ -291,7 +313,7 @@ t5_3_clean |>
 ```
 Other hospitals consistently show the highest compliance rates across all triage categories. Public acute group A hospitals show the lowest compliance for Emergency presentations at around 61%. The gap between hospital types is largest for Emergency and smallest for Non-urgent cases. This suggests that high-volume acute hospitals face the most pressure when dealing with urgent presentations.
 
-Does remoteness explain the gap?
+### Does remoteness explain the gap?
 
 Hospital type explains some of the variation. But hospital type and geographic remoteness are closely linked. The chart below looks at whether remoteness alone can explain the gap in compliance rates across Victoria.
 
@@ -300,12 +322,18 @@ ts5_2_clean |>
   filter(!triage %in% c("Total", "Resuscitation")) |>
   ggplot(aes(x = triage, y = Vic, fill = remoteness)) +
   geom_col(position = "dodge") +
+  labs(
+    title = "Victoria ED compliance by remoteness and triage category, 2024-25",
+    x = "Triage category",
+    y = "Proportion seen on time (%)",
+    fill = "Remoteness"
+  ) +
   theme_bw() +
   theme(legend.position = "right")
 ```
 Major cities show the highest compliance rate for Semi-urgent presentations. For Urgent presentations, Inner regional areas show the lowest compliance at around 60%. The differences between remoteness areas are relatively small across most triage categories. Very remote areas have limited data available for Victoria, so a full comparison is not possible.
 
-Where does this leave patients on the map?
+### Where does this leave patients on the map?
 
 The bar chart shows that remoteness is associated with lower compliance rates. The map below puts these differences on the geography of Victoria, with the 50 ED locations shown as points.
 
@@ -333,6 +361,9 @@ ggplot() +
     name = "% seen on time",
     limits = c(60, 75),
     na.value = "grey80"
+  ) +
+  labs(
+    title = "Victoria ED compliance by remoteness area, 2024-25"
   ) +
   theme_void()
 ```
