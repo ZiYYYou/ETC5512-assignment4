@@ -217,3 +217,148 @@ Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. 
 
 Pebesma, E., 2018. Simple Features for R: Standardized Support for Spatial Vector Data. The R Journal 10 (1), 439-446, https://doi.org/10.32614/RJ-2018-009
 
+<!-- ---------------------------------------------------------------------- -->
+
+<!-- Blog post - Task 2 Tab -->
+
+<!-- ---------------------------------------------------------------------- -->
+
+## Blog post
+
+ What is this analysis about?
+
+Victorian public hospitals treat millions of emergency patients every year. Waiting times vary widely across the state. Australia measures emergency department (ED) performance by tracking the proportion of patients seen on time for each triage category. Category 1 patients are the most critical and should be seen immediately. Category 5 patients are the least urgent and should be seen within two hours.
+
+Why analyse Victoria's ED performance?
+
+I live in Melbourne and use public hospitals. I want to know whether waiting times in Victoria have recovered since the COVID-19 pandemic. I also want to understand whether hospital type and geographic 
+
+location explain why some patients wait longer than others.
+
+ Where can we get the data?
+
+The data comes from the AIHW Emergency Department Care 2024–25 data tables. The dataset covers all Australian public hospital EDs from 2020–21 to 2024–25. The table below shows Victoria's overall ED performance across the five years.
+
+ How has Victoria's ED performance changed over time?
+
+The first question is how Victoria's ED performance has changed over the five-year period. The two charts below show the proportion of patients seen on time and the median waiting time from 2020-21 to 2024-25.
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+t5_1_clean |>
+  filter(measure == "Proportion seen on time (%)") |>
+  ggplot(aes(x = year, y = value, group = 1)) +
+  geom_line() +
+  geom_point() +
+  theme_bw()
+
+t5_1_clean |>
+  filter(measure == "Median waiting time (minutes)") |>
+  ggplot(aes(x = year, y = value, group = 1)) +
+  geom_line() +
+  geom_point() +
+  theme_bw()
+```
+The data show that Victoria's proportion of patients seen on time dropped to its lowest point in 2021-22 and has since recovered steadily. Median waiting time followed the opposite pattern. It peaked in 2021-22 and has fallen each year since. Both trends suggest the system was under significant pressure during the COVID period and has improved in recent years.
+
+
+Is Victoria keeping up with the rest of the country?
+
+Victoria's performance has improved, but how does it compare to the rest of the country? The chart below compares Victoria's four-hour rule compliance rate with the national average from 2020-21 to 2024-25.
+```{r}
+t6_3_clean |>
+  filter(admission_status == "All presentations to emergency departments") |>
+  ggplot(aes(x = year, y = value, group = state, colour = state)) +
+  geom_line() +
+  geom_point() +
+  theme_bw()
+```
+Victoria performs below the national average in every year. Both lines follow a similar downward trend. Victoria dropped sharply from 2020-21 to 2022-23, recovered slightly in 2023-24, then fell again in 2024-25. The national average followed the same pattern but stayed consistently higher. The gap between Victoria and the national average has narrowed slightly over time but has not closed.
+
+ Which hospitals are struggling the most?
+
+Victoria performs below the national average. The next question is where inside Victoria the shortfall is coming from. The chart below breaks down compliance rates by hospital type and triage category for 2024-25.
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+t5_3_clean |>
+  filter(!triage %in% c("Total", "Resuscitation")) |>
+  ggplot(aes(x = triage, y = Vic, fill = peer_group)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  theme(
+    legend.position = "right",
+    legend.text = element_text(size = 7)
+  )
+```
+Other hospitals consistently show the highest compliance rates across all triage categories. Public acute group A hospitals show the lowest compliance for Emergency presentations at around 61%. The gap between hospital types is largest for Emergency and smallest for Non-urgent cases. This suggests that high-volume acute hospitals face the most pressure when dealing with urgent presentations.
+
+Does remoteness explain the gap?
+
+Hospital type explains some of the variation. But hospital type and geographic remoteness are closely linked. The chart below looks at whether remoteness alone can explain the gap in compliance rates across Victoria.
+
+```{r}
+ts5_2_clean |>
+  filter(!triage %in% c("Total", "Resuscitation")) |>
+  ggplot(aes(x = triage, y = Vic, fill = remoteness)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  theme(legend.position = "right")
+```
+Major cities show the highest compliance rate for Semi-urgent presentations. For Urgent presentations, Inner regional areas show the lowest compliance at around 60%. The differences between remoteness areas are relatively small across most triage categories. Very remote areas have limited data available for Victoria, so a full comparison is not possible.
+
+Where does this leave patients on the map?
+
+The bar chart shows that remoteness is associated with lower compliance rates. The map below puts these differences on the geography of Victoria, with the 50 ED locations shown as points.
+
+```{r}
+remoteness_perf <- ts5_2_clean |>
+  filter(triage == "Total") |>
+  select(remoteness, Vic)
+
+ra_vic_join <- remote_vic |>
+  mutate(remoteness = case_when(
+    RA_NAME21 == "Major Cities of Australia" ~ "Major cities",
+    RA_NAME21 == "Inner Regional Australia" ~ "Inner regional",
+    RA_NAME21 == "Outer Regional Australia" ~ "Outer regional",
+    RA_NAME21 == "Remote Australia" ~ "Remote",
+    TRUE ~ NA_character_
+  )) |>
+  left_join(remoteness_perf, by = "remoteness")
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = ra_vic_join, aes(fill = Vic)) +
+  geom_sf(data = vic_eds_sf, size = 1) +
+  scale_fill_viridis_c(
+    name = "% seen on time",
+    limits = c(60, 75),
+    na.value = "grey80"
+  ) +
+  theme_void()
+```
+The map shows that Major cities, centred around Melbourne, have the highest compliance rate. ED locations are concentrated in and around Melbourne. Regional and remote areas have lower compliance rates and fewer ED services. Patients in these areas face both longer travel distances and lower on-time performance when they arrive.
+
+### What does this tell us about Victoria's emergency departments?
+
+Victoria's ED system has improved since the COVID period but still performs below the national average. Performance varies across the state. Major cities have the highest compliance rates and the most ED services. Regional and remote areas have fewer services and lower compliance rates. Hospital type also matters. Public acute group A hospitals show the lowest compliance for Emergency presentations. As someone who lives in Melbourne and uses public hospitals, I find it reassuring that Major cities perform the best. However, the gap between city and regional areas is a concern.
+
+
+### Does analysing ED data raise any ethical concerns?
+
+The data used in this analysis comes from the Australian Institute of Health and Welfare. It is publicly available under an open government licence. All figures are pre-aggregated at the state and hospital peer group level. No patient-level records are included. This means there are no direct privacy concerns about individual patients.
+
+However, there are some limitations worth noting. The data does not include information about why patients waited longer in some areas. It also does not capture the experience of individual patients. Using aggregated data to draw conclusions about specific communities should be done carefully.
+
+I also used AI tools to help with parts of this analysis. AI was used to assist with coding and writing, but all decisions about the analysis were made by me. The raw data was never shared with any AI system.
+
+### What else could we learn from Victoria's emergency departments?
+
+This analysis only uses pre-aggregated data at the state and hospital peer group level. In future, I would like to explore:
+
+- Individual hospital-level data to identify which specific hospitals are struggling the most within each peer group.
+- The reasons why patients leave without being seen, which may reveal additional pressure points in the system.
+- How staffing levels and hospital capacity relate to compliance rates across different regions of Victoria.
+
+### References
+
+See Data Details tab.
