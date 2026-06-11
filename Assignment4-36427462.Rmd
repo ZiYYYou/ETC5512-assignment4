@@ -432,4 +432,19 @@ In future I would like to add staffing and capacity data to the analysis to unde
 
 This question doesn't require an answer.
 
+## AI acknowledgment
+I use AI to assist me in organising my thoughts and troubleshooting, rather than directly writing the code or analysis.
+In this assignment, I used AI to:
 
+- When my cleaning pipeline produced errors or warnings, such as the recycling warning from using `Vic == c("n.p.", ". .")` instead of `%in%`, and the type error requiring `NA_character_` rather than NA inside `if_else()`, the AI explained the underlying cause of each error and the correction logic. I then rewrote and tested the code myself.
+
+- Help me better understand the purpose and usage of functions such as `pivot_longer()`, `case_when()`, ` st_as_sf()` and `st_transform()`, particularly why the AIHW sheets with years as columns needed reshaping while sheets with states as columns did not, and why the ED points must be reprojected to match the shapefile's coordinate system before mapping.
+
+- Help me clarify what the raw data actually represented. For example, the difference between `n.p.` and `. .` in the AIHW tables and why they must become NA rather than zero, what the hospital peer group classification means, and what analysis is not possible because the data is pre-aggregated at state level rather than patient level.
+
+- Discuss and refine my presentation choices iteratively. For instance, whether the Very Remote areas with suppressed data should be removed from the choropleth map or shown in grey, and whether to lead the blog post with the proportion seen on time or the median waiting time.
+
+Throughout this process, the raw data files were never shared with AI; only column names, error messages and small code snippets were discussed. Although AI provided explanations and examples, all code was rewritten and verified by me, and all decisions were made through my own judgement.
+
+Here is the link(s) to all prompts used:
+(https://chatgpt.com/share/6a2a6913-eb9c-83ec-b00a-97990b6f7bdf)
