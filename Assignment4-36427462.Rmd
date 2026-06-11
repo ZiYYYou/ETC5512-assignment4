@@ -20,7 +20,7 @@ Due Date: 2026-6-12
 
 #### Question 1
 
-Victorian public hospitals treat millions of emergency patients each year, yet waiting times vary widely across triage categories and hospital types. Victorian public hospitals treat millions of emergency patients each year, yet waiting times vary widely across triage categories and hospital types. This analysis investigates how emergency department (ED) performance in Victoria changed between 2020–21 and 2024–25, and whether triage urgency category (1–5), hospital peer group, and geographic remoteness explain the variation in waiting time compliance rates across the state.
+Victorian public hospitals treat millions of emergency patients each year, yet waiting times vary widely across triage categories and hospital types. This analysis investigates how emergency department (ED) performance in Victoria changed between 2020–21 and 2024–25, and whether triage urgency category (1–5), hospital peer group, and geographic remoteness explain the variation in waiting time compliance rates across the state.
 
 Specifically, the analysis addresses four sub-questions: 1. How did Victoria's ED compliance rate and median waiting time change over five years (including the COVID disruption and recovery period)? 2. How does Victoria's performance compare with the national average over the same period? 3. Which triage categories and hospital peer groups show the greatest shortfall in on-time performance? 4. Does geographic remoteness explain variation in on-time compliance across the state, and how does this pattern appear geographically?
 
@@ -142,7 +142,7 @@ Here I clean Table 6.3, retaining both Victoria and the national total for compa
 ```{r}
 t6_3_clean <- t6_3_raw |>
   rename(admission_status = 1, state = 2) |>
-  filter(state == c("Vic", "Total")) |>
+  filter(state %in% c("Vic", "Total")) |>
   pivot_longer(
     cols = starts_with("20"),
     names_to = "year",
@@ -188,7 +188,8 @@ remote_vic <- boundary_data |>
   ))
 
 vic_eds_sf <- vic_eds |>
-  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326) |>
+  st_transform(crs = st_crs(remote_vic))
 ```
 All three files are stored locally in the data/ folder following the download steps above.
 
