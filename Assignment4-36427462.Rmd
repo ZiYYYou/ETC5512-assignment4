@@ -231,9 +231,7 @@ Victorian public hospitals treat millions of emergency patients every year. Wait
 
 ### Why analyse Victoria's ED performance?
 
-I live in Melbourne and use public hospitals. I want to know whether waiting times in Victoria have recovered since the COVID-19 pandemic. I also want to understand whether hospital type and geographic 
-
-location explain why some patients wait longer than others.
+I live in Melbourne and use public hospitals. I want to know whether waiting times in Victoria have recovered since the COVID-19 pandemic. I also want to understand whether hospital type and geographic location explain why some patients wait longer than others.
 
 ### Where can we get the data?
 
@@ -448,3 +446,22 @@ Throughout this process, the raw data files were never shared with AI; only colu
 
 Here is the link(s) to all prompts used:
 (https://chatgpt.com/share/6a2a6913-eb9c-83ec-b00a-97990b6f7bdf)
+
+## GitHub repository
+
+My iterative process can be seen in my GitHub repository:
+(https://github.com/ZiYYYou/ETC5512-assignment4.git)
+
+The key commits that show my iterations are:
+
+**Commit "Finish Task1" (dd0b4d8):** 
+I added the data descriptions, download steps and the first version of my cleaning code. At this stage the cleaning still had problems I had not noticed: I used == instead of %in% when replacing the n.p. values, which gave a recycling warning, and the ED points were not reprojected to match the shapefile.
+
+**Commit "Fix some issues in task1" (f5cda1f):** 
+I fixed the n.p. cleaning bug after understanding the difference between == and %in%, added st_transform() so the ED points align with the map boundaries, and removed a duplicated sentence in Question 1. I learnt that code which runs without an error can still produce wrong results.
+
+**Commit "Finish Task2" (ce41e1c):** 
+I added the full blog post draft with the charts and the choropleth map. Some headings left over from the example template were still in the text, and my charts only had default axis labels.
+
+**Commit "Add labs and fix some problems for Task 2" (330debd):** 
+I cleaned out the template leftovers, fixed a broken paragraph, and added proper titles and axis labels to all charts with labs(). I learnt that a chart is much easier to read when the labels explain the units.
