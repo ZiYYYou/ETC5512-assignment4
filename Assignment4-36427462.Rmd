@@ -393,3 +393,43 @@ This analysis only uses pre-aggregated data at the state and hospital peer group
 ### References
 
 See Data Details tab.
+
+<!-- ---------------------------------------------------------------------- -->
+
+<!-- Behind the Scenes - Task 3 Tab -->
+
+<!-- ---------------------------------------------------------------------- -->
+
+## Behind the Scenes
+
+#### Question 4
+
+The most tedious part of this analysis was cleaning the AIHW Excel files. Each sheet had a different structure. Table 5.1 and Table 6.3 had the data organised by year columns, which required pivot_longer to reshape into tidy format. Table 5.3 and Table S5.2 had the data organised by state columns, which only required selecting the Victoria column. Identifying the correct structure for each sheet before writing the cleaning code took time.
+
+The AIHW data also uses n.p. and . . to represent suppressed or unavailable values instead of leaving cells empty. These had to be identified and replaced with NA before converting the value column to numeric. This was a small but necessary step that was easy to overlook.
+
+Preparing the choropleth map also required several repetitive steps. The remoteness area names in the ABS shapefile did not match the names in the AIHW data. Each name had to be manually matched using case_when() before the two datasets could be joined.
+
+#### Question 5
+
+One challenge I did not anticipate was the mismatch between column names in the raw Excel files and what R expects. Some column names contained special characters such as slashes and brackets. For example, the column State/territory could not be used directly in filter() without backticks. I resolved this by using rename() at the start of each cleaning pipeline to replace all problematic column names with clean equivalents.
+
+A second challenge was the coordinate reference system mismatch between the two geographic files. The Geoscience Australia CSV uses WGS84 (EPSG 4326) while the ABS shapefile uses GDA94 (EPSG 4283). When I first tried to overlay the ED points on the map, the points did not align correctly. I resolved this using st_transform() to reproject the CSV points to match the shapefile's coordinate system.
+
+A third challenge was that Victoria has very limited data for the Very Remote category in Table S5.2. Most values were suppressed as `n.p.` or `. .`. This meant the choropleth map could not show a complete picture of all five remoteness zones for Victoria.
+
+#### Questions 6
+
+The main limitation of this analysis is that all AIHW data is pre-aggregated at the state and hospital peer group level. This means I cannot identify which specific hospitals within each peer group are performing poorly. Individual hospital-level data would allow a more precise analysis.
+
+The choropleth map is also limited because it only shows four remoteness zones for Victoria. Very remote areas have insufficient data and appear as grey on the map. A more complete dataset would produce a more informative map.
+
+In future I would like to add staffing and capacity data to the analysis to understand whether resource levels explain the compliance gaps between hospital types and regions. I would also like to extend the time series beyond 2024-25 as new data becomes available to track whether Victoria's recovery continues.
+
+#### Question 7
+
+*An additional 2 marks will be awarded for the code you used to produce your analysis and report. These marks include reproducibility, compiling of your .html, production of any figures and tables etc.*
+
+This question doesn't require an answer.
+
+
